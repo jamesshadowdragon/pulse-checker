@@ -3,10 +3,9 @@ FROM php:8.2-apache
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Enable Apache mod_rewrite and mod_headers
+# Enable Apache modules
 RUN a2enmod rewrite headers
 
 # Copy project files
@@ -18,17 +17,21 @@ RUN chown -R www-data:www-data /var/www/html/ \
     && mkdir -p /var/www/html/monitors \
     && chmod 755 /var/www/html/monitors
 
-# Configure Apache to use .htaccess
+# ============================================================
+# CRITICAL: Add CORS headers directly to Apache config
+# ============================================================
 RUN echo '<Directory /var/www/html/>' >> /etc/apache2/apache2.conf \
     && echo '    AllowOverride All' >> /etc/apache2/apache2.conf \
-    && echo '    Options Indexes FollowSymLinks' >> /etc/apache2/apache2.conf \
+    && echo '    Header set Access-Control-Allow-Origin "*"' >> /etc/apache2/apache2.conf \
+    && echo '    Header set Access-Control-Allow-Methods "GET, POST, DELETE, OPTIONS"' >> /etc/apache2/apache2.conf \
+    && echo '    Header set Access-Control-Allow-Headers "Content-Type, X-PulseCheck-Token"' >> /etc/apache2/apache2.conf \
+    && echo '    Header set Access-Control-Max-Age "86400"' >> /etc/apache2/apache2.conf \
     && echo '</Directory>' >> /etc/apache2/apache2.conf
 
-# Enable mod_rewrite
-RUN a2enmod rewrite
+# Ensure OPTIONS requests are handled
+RUN echo 'RewriteEngine On' >> /var/www/html/.htaccess \
+    && echo 'RewriteCond %{REQUEST_METHOD} OPTIONS' >> /var/www/html/.htaccess \
+    && echo 'RewriteRule ^(.*)$ $1 [R=200,L]' >> /var/www/html/.htaccess
 
-# Expose port 80
 EXPOSE 80
-
-# Start Apache
 CMD ["apache2-foreground"]
