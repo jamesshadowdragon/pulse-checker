@@ -1,0 +1,13 @@
+{
+    "name": "pulsecheck/api",
+    "description": "PulseCheck API - File-based monitor storage",
+    "type": "project",
+    "require": {
+        "php": ">=7.4"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "mkdir -p monitors && chmod 755 monitors"
+        ]
+    }
+}
