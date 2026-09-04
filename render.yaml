@@ -1,13 +1,14 @@
 services:
   - type: web
     name: pulsecheck-api
-    env: php
+    env: docker
     buildCommand: |
-      mkdir -p monitors
-      chmod 755 monitors
-      composer install --no-dev
-    startCommand: php -S 0.0.0.0:10000 -t .
+      apt-get update && apt-get install -y apache2 php php-curl php-json
+      a2enmod rewrite headers
+      echo 'Header set Access-Control-Allow-Origin "*"' >> /etc/apache2/apache2.conf
+      echo 'Header set Access-Control-Allow-Methods "GET, POST, DELETE, OPTIONS"' >> /etc/apache2/apache2.conf
+      echo 'Header set Access-Control-Allow-Headers "Content-Type, X-PulseCheck-Token"' >> /etc/apache2/apache2.conf
+      echo 'Header set Access-Control-Max-Age "86400"' >> /etc/apache2/apache2.conf
+      service apache2 restart
+    startCommand: apache2-foreground
     plan: free
-    envVars:
-      - key: PULSECHECK_CRON_SECRET
-        generateValue: true
