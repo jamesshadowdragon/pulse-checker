@@ -1,0 +1,38 @@
+# ============================================================
+# PulseCheck - Public API
+# ============================================================
+
+RewriteEngine On
+
+
+# ------------------------------------------------------------
+# CORS
+# ------------------------------------------------------------
+
+<IfModule mod_headers.c>
+
+    Header always set Access-Control-Allow-Origin "*"
+
+    Header always set Access-Control-Allow-Methods "GET, POST, DELETE, OPTIONS"
+
+    Header always set Access-Control-Allow-Headers "Content-Type, X-PulseCheck-Token"
+
+    Header always set Access-Control-Max-Age "86400"
+
+</IfModule>
+
+
+# ------------------------------------------------------------
+# OPTIONS / CORS PREFLIGHT
+# ------------------------------------------------------------
+
+RewriteCond %{REQUEST_METHOD} OPTIONS
+
+RewriteRule ^ - [R=204,L]
+
+
+# ------------------------------------------------------------
+# Disable directory listing
+# ------------------------------------------------------------
+
+Options -Indexes
