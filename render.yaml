@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: pulsecheck-api
+    env: php
+    buildCommand: |
+      mkdir -p monitors
+      chmod 755 monitors
+      composer install --no-dev
+    startCommand: php -S 0.0.0.0:10000 -t .
+    plan: free
+    envVars:
+      - key: PULSECHECK_CRON_SECRET
+        generateValue: true
